@@ -1,0 +1,24 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  MyInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      InstanceProfileName: 'MyInstanceProfile'
+      Roles:
+        - !Ref MyInstanceRole
+  MyInstanceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 'MyInstanceRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore'

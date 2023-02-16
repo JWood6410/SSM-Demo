@@ -1,0 +1,60 @@
+Parameters:
+  DBInstanceName:
+    Type: String
+    Default: my-rds-instance
+  DBName:
+    Type: String
+    Default: mydb
+  DBUser:
+    Type: String
+    Default: admin
+  AdminPassword:
+    Type: String
+    NoEcho: true
+    Description: The password for the MySQL database administrator
+  SecretName:
+    Type: String
+    Default: 'my-rds-instance-admin-password'
+
+Resources:
+  Secret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Ref SecretName
+      Description: Secret for RDS admin password
+      GenerateSecretString:
+        SecretStringTemplate: '{"password": "' + !Ref AdminPassword + '"}'
+        GenerateStringKey: 'password'
+
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref DBName
+      Engine: mysql
+      EngineVersion: 8.0.23
+      DBInstanceIdentifier: !Ref DBInstanceName
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 10
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: '{{resolve:secretsmanager:' + !Ref SecretName + ':SecretString:password}}'
+      BackupRetentionPeriod: 7
+      MultiAZ: false
+      StorageType: gp2
+      VPCSecurityGroups:
+        - !Ref DBSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroupName
+      PubliclyAccessible: false
+
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for MySQL RDS instance
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  DBEndpoint:
+    Value: !Join ['', ['jdbc:mysql://', !GetAtt DBInstance.Endpoint.Address, ':3306/', !Ref DBName]]

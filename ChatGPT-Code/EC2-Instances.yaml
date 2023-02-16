@@ -1,0 +1,74 @@
+Parameters:
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+  InstanceTypeLinux:
+    Type: String
+    Default: t2.micro
+    Description: EC2 instance type for Amazon Linux 2 instance
+  InstanceTypeWindows:
+    Type: String
+    Default: t2.micro
+    Description: EC2 instance type for Windows 2019 instance
+
+Resources:
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Security group with no inbound access"
+      VpcId: !Ref VpcId
+
+  InstanceProfileLinux:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref SsmRole
+
+  InstanceProfileWindows:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref SsmRole
+
+  SsmRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: SSMManagedInstancePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:DescribeInstanceInformation
+                  - ssm:ListCommands
+                  - ssm:SendCommand
+                Resource: "*"
+
+  AmazonLinuxInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyName
+      InstanceType: !Ref InstanceTypeLinux
+      ImageId: ami-0c55b159cbfafe1f0 # Amazon Linux 2 AMI ID
+      IamInstanceProfile: !Ref InstanceProfileLinux
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+
+  WindowsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyName
+      InstanceType: !Ref InstanceTypeWindows
+      ImageId: ami-0f3d1199aeb1bb4a3 # Windows Server 2019 AMI ID
+      IamInstanceProfile: !Ref InstanceProfileWindows
+      SecurityGroupIds:
+        - !Ref SecurityGroup

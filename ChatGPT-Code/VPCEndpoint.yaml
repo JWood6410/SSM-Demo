@@ -1,0 +1,73 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID to create endpoints in
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet ID to create endpoints in
+  SecurityGroupCidr:
+    Type: String
+    Description: CIDR range to allow access to the security group
+  Region:
+    Type: String
+    Description: AWS region where the VPC endpoints will be created
+Resources:
+  SSMEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      ServiceName: !Sub 'com.amazonaws.${Region}.ssm'
+      VpcEndpointType: 'Interface'
+      SubnetIds:
+        - !Ref SubnetId
+      SecurityGroupIds:
+        - !Ref SSMEndpointSecurityGroup
+  SSMMessagesEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      ServiceName: !Sub 'com.amazonaws.${Region}.ssmmessages'
+      VpcEndpointType: 'Interface'
+      SubnetIds:
+        - !Ref SubnetId
+      SecurityGroupIds:
+        - !Ref SSMMessagesEndpointSecurityGroup
+  ECMessagesEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      ServiceName: !Sub 'com.amazonaws.${Region}.ec2messages'
+      VpcEndpointType: 'Interface'
+      SubnetIds:
+        - !Ref SubnetId
+      SecurityGroupIds:
+        - !Ref ECMessagesEndpointSecurityGroup
+  SSMEndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: 'SSMEndpointSecurityGroup'
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref SecurityGroupCidr
+  SSMMessagesEndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: 'SSMMessagesEndpointSecurityGroup'
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref SecurityGroupCidr
+  ECMessagesEndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: 'ECMessagesEndpointSecurityGroup'
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref SecurityGroupCidr

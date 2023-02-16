@@ -1,0 +1,29 @@
+Resources:
+  KmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for SSM encryption
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: key-default-1
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+          - Sid: Allow SSM to use the key
+            Effect: Allow
+            Principal:
+              Service: ssm.amazonaws.com
+            Action:
+              - kms:GenerateDataKey
+              - kms:Decrypt
+            Resource: '*'
+
+  KmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/SSMKey
+      TargetKeyId: !Ref KmsKey
