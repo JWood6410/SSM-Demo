@@ -1,0 +1,109 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create SSM EC2 Instances
+# This creates an Amazon Linux 2 instance and a Windows 2022 EC2
+# instance, along with an Instance Profile and Role. A Security Group
+# with no internal access is also created and attached to the 
+# instances.
+
+#NOTE: This assumes a Key Pair has already been created.
+
+# This lets us choose the order that parameters are displayed
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: "EC2 Details"
+      Parameters:
+        - KeyName
+        - InstanceTypeLinux
+        - InstanceTypeWindows
+        - VpcId
+        - SubnetIds
+
+Parameters:
+  KeyName:
+    Type: String
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+  InstanceTypeLinux:
+    Type: String
+    Default: t3.micro
+    Description: EC2 instance type for Amazon Linux 2 instance
+  InstanceTypeWindows:
+    Type: String
+    Default: t3.micro
+    Description: EC2 instance type for Windows 2019 instance
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC Id for the Endpoints
+  SubnetIds:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet to deploy the instances
+
+Mappings:
+  RegionMap:
+    ap-southeast-2:
+      LIN: ami-0692dea0a2f8a1b35
+      WIN: ami-00b26075b2fd85d7e
+    ap-southeast-4:
+      LIN: ami-06b9d4c88e4080975
+      WIN: ami-06b9d4c88e4080975  
+
+Resources:
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Security group with no inbound access"
+      GroupName: NoInbound
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name 
+          Value: NoInboundSG      
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref SsmRole
+  SsmRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 'MyInstanceRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore'
+
+  AmazonLinuxInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetIds
+      InstanceType: !Ref InstanceTypeLinux
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", LIN]
+      IamInstanceProfile: !Ref InstanceProfile
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      Tags:
+        - Key: Name 
+          Value: LinuxEC2
+
+  WindowsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetIds
+      InstanceType: !Ref InstanceTypeWindows
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", LIN]
+      IamInstanceProfile: !Ref InstanceProfile
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      Tags:
+        - Key: Name 
+          Value: WindowsEC2
