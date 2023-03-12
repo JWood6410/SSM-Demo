@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create MySQL
+# This creates a MySQL Database. The Admin password is created in Secrets Manager.
+
+# This lets us choose the order that parameters are displayed
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: "Database Details"
+      Parameters:
+        - DBInstanceName
+        - DBName
+    - Label:
+        default: "Secrets Manager"
+      Parameters:  
+        - SecretName
+
+Parameters:
+  DBInstanceName:
+    Type: String
+    Default: my-rds-instance
+  DBName:
+    Type: String
+    Default: mydb
+  SecretName:
+    Type: String
+    Default: 'my-rds-instance-admin-password'
+
+Resources:
+  Secret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Ref SecretName
+      Description: Secret for RDS admin password
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "admin"}'
+        GenerateStringKey: 'password'
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\'
+
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 10 
+      BackupRetentionPeriod: 7         
+      DBInstanceClass: db.t3.micro    
+      DBInstanceIdentifier: !Ref DBInstanceName    
+      DBName: !Ref DBName      
+      Engine: mysql
+      EngineVersion: 8.0.23
+      #MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref Secret, ':SecretString:username}}' ]]
+      MasterUsername: !Sub '{{resolve:secretsmanager:${Secret}:SecretString:username}}'
+      #MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref Secret, ':SecretString:password}}' ]]
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${Secret}:SecretString:password}}'
+      MultiAZ: false
+      PubliclyAccessible: false      
+      StorageType: gp2
+      VPCSecurityGroups:
+        - !Ref DBSecurityGroup
+
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for MySQL RDS instance
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  DBEndpoint:
+    #Value: !Join ['', ['jdbc:mysql://', !GetAtt DBInstance.Endpoint.Address, ':3306/', !Ref DBName]]
+    Value: !Sub
+             - 'jdbc:mysql://${Address}:3306/${DBName}'
+             - Address: !GetAtt DBInstance.Endpoint.Address

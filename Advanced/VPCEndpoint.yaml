@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create VPC Endpoints
+# This creates VPC Endpoints for SSM with a single SG. This example
+# uses a single Subnet for the Endpoints to save money.
+
+# This lets us choose the order that parameters are displayed
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: "Network Details"
+      Parameters:
+        - Region
+        - VpcId
+        - SubnetId
+        - SecurityGroupCidr
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC Id for the Endpoints
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet ID to create endpoints in
+  SecurityGroupCidr:
+    Type: String
+    Description: CIDR range to allow access. Generally the VPC's CIDR
+  Region:
+    Type: String
+    Description: AWS region where the VPC endpoints will be created
+    AllowedValues:
+      - ap-southeast-2
+      - ap-southeast-4
+
+Resources:
+  SSMEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SecurityGroupIds:
+        - !Ref EndpointSecurityGroup
+      ServiceName: !Sub 'com.amazonaws.${Region}.ssm'
+      VpcEndpointType: 'Interface'
+      VpcId: !Ref VpcId
+      SubnetIds:
+        - !Ref SubnetId
+      PrivateDnsEnabled: true  
+      
+  SSMMessagesEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      ServiceName: !Sub 'com.amazonaws.${Region}.ssmmessages'
+      VpcEndpointType: 'Interface'
+      VpcId: !Ref VpcId
+      SubnetIds:
+        - !Ref SubnetId
+      SecurityGroupIds:
+        - !Ref EndpointSecurityGroup
+      PrivateDnsEnabled: true  
+
+  ECMessagesEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      ServiceName: !Sub 'com.amazonaws.${Region}.ec2messages'
+      VpcEndpointType: 'Interface'
+      VpcId: !Ref VpcId
+      SubnetIds:
+        - !Ref SubnetId
+      SecurityGroupIds:
+        - !Ref EndpointSecurityGroup
+      PrivateDnsEnabled: true  
+
+  KMSEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      ServiceName: !Sub 'com.amazonaws.${Region}.kms'
+      VpcEndpointType: 'Interface'
+      VpcId: !Ref VpcId
+      SubnetIds:
+        - !Ref SubnetId
+      SecurityGroupIds:
+        - !Ref EndpointSecurityGroup
+      PrivateDnsEnabled: true 
+
+  EndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: This allows HTTPS access to the VPC Endpoints
+      GroupName: 'EndpointSecurityGroup'
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref SecurityGroupCidr
+      Tags:
+        - Key: Name 
+          Value: Endpoint-SG
+    

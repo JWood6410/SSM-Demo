@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create SSM KMS Key
+# This creates a KMS key for SSM, with appropriate policy.
+
+Resources:
+  KmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for SSM encryption
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: key-default-1
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Ref AWS::AccountId
+            Action: kms:*
+            Resource: '*'
+
+          - Sid: Allow SSM to use the key
+            Effect: Allow
+            Principal:
+              Service: ssm.amazonaws.com
+            Action:
+              - "kms:Encrypt"
+              - "kms:Decrypt"
+              - "kms:ReEncrypt*"
+              - "kms:GenerateDataKey*"
+              - "kms:CreateGrant"
+              - "kms:ListGrants"
+              - "kms:DescribeKey"
+            Resource: '*'
+
+          - Sid: Usage
+            Effect: Allow
+            Principal:
+              AWS:
+                - "*"
+            Action:
+              - "kms:Encrypt"
+              - "kms:Decrypt"
+              - "kms:ReEncrypt*"
+              - "kms:GenerateDataKey*"
+              - "kms:CreateGrant"
+              - "kms:ListGrants"
+              - "kms:DescribeKey"
+            Resource: '*'
+            Condition:
+                StringEquals:
+                    aws:PrincipalAccount: !Ref AWS::AccountId
+      EnableKeyRotation: true      
+
+  KmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/SSMKey
+      TargetKeyId: !Ref KmsKey

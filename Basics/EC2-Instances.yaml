@@ -45,7 +45,7 @@ Mappings:
       LIN: ami-0692dea0a2f8a1b35
       WIN: ami-00b26075b2fd85d7e
     ap-southeast-4:
-      LIN: ami-06b9d4c88e4080975
+      LIN: ami-0c67d08189e558c77
       WIN: ami-06b9d4c88e4080975  
 
 Resources:
@@ -100,7 +100,7 @@ Resources:
       KeyName: !Ref KeyName
       SubnetId: !Ref SubnetIds
       InstanceType: !Ref InstanceTypeWindows
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", LIN]
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", WIN]
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroupIds:
         - !Ref SecurityGroup
