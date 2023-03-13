@@ -16,8 +16,10 @@ Install link: https://docs.aws.amazon.com/systems-manager/latest/userguide/sessi
 All the SSM commands in this demo require the Instance ID for the EC2 you want to access. Assuming you have tagged your instance with a Name, the following CLI command can help:
 
 ```
-aws ec2 describe-instances --region ap-southeast-2 --output text --query 'Reservations[*].Instances[*].[[Tags[?Key==`Name`].Value] [0][0], InstanceId, State.Name ]'
+aws ec2 describe-instances --output text --query 'Reservations[*].Instances[*].[[Tags[?Key==`Name`].Value] [0][0], InstanceId, State.Name ]' --region ap-southeast-2
 ```
+You can then set the InstanceID as a variable.
+
 Note: This is for ap-southeast-2. Update as appropriate.
 
 ## Starting a basic command session

@@ -24,6 +24,7 @@ Parameters:
   KeyName:
     Type: String
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Default: SydDemoKeyPair
   InstanceTypeLinux:
     Type: String
     Default: t3.micro
@@ -44,9 +45,11 @@ Mappings:
     ap-southeast-2:
       LIN: ami-0692dea0a2f8a1b35
       WIN: ami-00b26075b2fd85d7e
+      Role: SydInstanceRole
     ap-southeast-4:
       LIN: ami-0c67d08189e558c77
-      WIN: ami-06b9d4c88e4080975  
+      WIN: ami-06b9d4c88e4080975
+      Role: MelbInstanceRole  
 
 Resources:
   SecurityGroup:
@@ -67,7 +70,7 @@ Resources:
   SsmRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: 'MyInstanceRole'
+      RoleName: !FindInMap [RegionMap, !Ref "AWS::Region", Role]
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
