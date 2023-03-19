@@ -82,6 +82,3 @@ If you select the **Connect with Remote Desktop** option, you are given three ch
 You are then given an RDP session in a small window. By clicking the icon in the top right, you can open to full screen.
 
 ![alt text](../Images/Basic-09-FleetMgr-RDP-Window.png "Fleet Manager RDP windows")
-
-## Additional (SHOULD THIS BE IN INTERMEDIATE??)
-I will be assuming that you have configured CLI access. There are various methods depending on whether you have SSO or not, so I won't be providing examples of that. If you need any assistance, please ask.

@@ -11,6 +11,7 @@ Metadata:
       Parameters:
         - DBInstanceName
         - DBName
+        - SGCIDR
     - Label:
         default: "Secrets Manager"
       Parameters:  
@@ -23,6 +24,9 @@ Parameters:
   DBName:
     Type: String
     Default: mydb
+  SGCIDR:
+    Type: String 
+    Default: 172.31.0.0/16
   SecretName:
     Type: String
     Default: 'my-rds-instance-admin-password'
@@ -42,22 +46,20 @@ Resources:
   DBInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      AllocatedStorage: 10 
-      BackupRetentionPeriod: 7         
+      AllocatedStorage: 20 
+      BackupRetentionPeriod: 3         
       DBInstanceClass: db.t3.micro    
       DBInstanceIdentifier: !Ref DBInstanceName    
       DBName: !Ref DBName      
       Engine: mysql
-      EngineVersion: 8.0.23
-      #MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref Secret, ':SecretString:username}}' ]]
+      EngineVersion: 8.0.32
       MasterUsername: !Sub '{{resolve:secretsmanager:${Secret}:SecretString:username}}'
-      #MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref Secret, ':SecretString:password}}' ]]
       MasterUserPassword: !Sub '{{resolve:secretsmanager:${Secret}:SecretString:password}}'
       MultiAZ: false
       PubliclyAccessible: false      
-      StorageType: gp2
+      StorageType: gp3
       VPCSecurityGroups:
-        - !Ref DBSecurityGroup
+        - !GetAtt DBSecurityGroup.GroupId
 
   DBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -67,7 +69,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 3306
           ToPort: 3306
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref SGCIDR
 
 Outputs:
   DBEndpoint:
