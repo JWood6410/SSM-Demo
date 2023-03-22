@@ -1,16 +1,3 @@
-# What is SSM
-Simple Systems Manager or Systems Manager or SSM is a suite of tools to allow management of EC2 instances. This demo will focus on the core component of secure server access. And you don't even need inbound or outbound internet access!
-
-## Cost
-This demo simulates a secure environment where there is no direct outbound access. To connect to AWS services, VPC Endpoints are used. We also spin up 2 x T3.Micro servers and use a KMS key. 
-
-| Description   | Hourly Cost | Monthly Cost |
-|---------------|-------------|--------------|
-| EC2 Linux     | $0.0132     | $9.636       |
-| EC2 Windows   | $0.0224     | $16.352      |
-| VPC Endpoints | $0.052      | $37.97       |
-| KMS Key       | N/A         | $1.03        |
-
 # SSM Connectivity Requirements
 SSM has several requirements before it will connect. Firstly, the EC2 instances need to have a role with permissions to connect to the SSM service. Secondly, the EC2 instances need to have the SSM agent installed. This comes default with several AMIs, including Windows and Amazon Linux 2. Finally, the instances need to talk to the SSM service. This can be done either via outbound internet \(Internet Gateway or NAT Gateway\) or using VPC Endpoints. 
 
