@@ -1,6 +1,6 @@
 # Advanced Configurations
 
-Some of the advanced options within **Fleet Manager** require an encrypted connection to SSM. I have included a new **01-VPCEndpoint.yaml** file that creates an endpoint for KMS [Note: I've often forgotten this step and wondered why I my KMS wasn't working]. The other file **02-KMS-SSM-key.yaml** creates the KMS CMK with appropriate permissions to allow SSM access.
+Some of the advanced options within **Fleet Manager** require an encrypted connection to SSM. I have included a new **01-VPCEndpoint.yaml** file that creates an endpoint for KMS [Note: I've often forgotten this step and wondered why KMS wasn't working]. The other file **02-KMS-SSM-key.yaml** creates the KMS CMK with appropriate permissions to allow SSM access.
 
 The KMS access is configured within **Session Manager** Preferences.
 
@@ -70,7 +70,7 @@ Waiting for connections...
 ```
 I'm using MySQL Workbench for my connection to the RDS instance. When configuring the connection, choose **localhost** for the hostname (127.0.0.1 also works) and **admin** as the user.
 
-![alt text](../Images/Advanced-06-MySQL-Workbench.png "MySQL Workbebcg new connection screen")
+![alt text](../Images/Advanced-06-MySQL-Workbench.png "MySQL Workbench new connection screen")
 
 The login window then asks for a password.
 
@@ -82,6 +82,6 @@ You can find the password in **Secrets Manager**.
 
 Finally, you get connected ...
 
-![alt text](../Images/Advanced-09-MySQL-Connected.png "Screen shot of being connected via MySQL Workbench")
+![alt text]Screenshot of being connected via MySQL Workbench")
 
 

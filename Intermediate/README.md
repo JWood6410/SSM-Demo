@@ -1,9 +1,9 @@
 # The Next Steps
 
 ### NOTE
-I will be assuming that you have configured CLI access. There are various methods depending on whether you have SSO or not, so I won't be providing examples of that. If you need any assistance, please ask.
+I will be assuming that you have configured CLI access. There are various methods to connect, depending on whether you have SSO or not, so I won't be providing examples of that. If you need any assistance, please ask.
 
-The below examples use a Linux syntax. I you are using a Windows Command shell or PowerShell, please make the appropriate adjustments. This is mainly the continuation character ("\\" for Linux). If you're having issues, just put the whole command on one line.
+The below examples use a Linux syntax. If you are using a Windows Command shell or PowerShell, please make the appropriate adjustments. This is mainly the continuation character ("\\" for Linux). If you're having issues, just put the whole command on one line.
 
 ## Install AWS CLI v2
 To be able to access the instances, you need to have the AWS CLI v2 installed on your PC. Version 2 supports the SSM plugin, so make sure that's the version you have installed.
@@ -24,7 +24,7 @@ All the SSM commands in this demo require the Instance ID for the EC2 you want t
 aws ec2 describe-instances --output text --query 'Reservations[*].Instances[*].[[Tags[?Key==`Name`].Value] [0][0], InstanceId, State.Name ]' --region ap-southeast-2
 ```
 
-The output will look something like:
+The output will look something like this:
 ```
 % aws ec2 describe-instances --output text --query 'Reservations[*].Instances[*].[[Tags[?Key==`Name`].Value] [0][0], InstanceId, State.Name ]' --region ap-southeast-2
 WindowsEC2      i-012345678abcdefgh     running
@@ -69,15 +69,13 @@ At that point:
 - log in with the Administrator user
 - **Get the Administrator user from the console via the Key Pair**
 
-The Macos config screen
+The macOS config screen
 
-![alt text](../Images/Inter-01-RDP-Config.png "RDP Config screen for Macos")
+![alt text](../Images/Inter-01-RDP-Config.png "RDP Config screen for macOS")
 
 Get the Windows Administrator password from the EC2 Connect screen
 
-![alt text](../Images/Inter-02-RDP-Password.png "EC instnace connect window with Windows password")
-
-Login with Administrator user
+![alt text](../Images/Inter-02-RDP-Password.png "EC Instance Connect window with Windows password"Login with the Administrator user
 
 ![alt text](../Images/Inter-03-RDP-Creds.png "Login window for Macos RPD client")
 
@@ -87,6 +85,6 @@ If you get a certificate warning, just click **Continue**
 
 RDP client window
 
-![alt text](../Images/Inter-05-RDP-Connected.png "Portion of RDP session should localhost as the server")
+![alt text](../Images/Inter-05-RDP-Connected.png "A portion of the RDP session showing localhost as the server")
 
-Note: You can use Port Forwarding for anything with an open port. If you are running a webserver, you can map 80 or 443 and connect to the website running on the server.
+Note: You can use Port Forwarding for anything with an open port. If you are running a web server, you can map 80 or 443 and connect to the website running on the server.

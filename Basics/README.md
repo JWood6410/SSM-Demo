@@ -4,7 +4,7 @@ SSM has several requirements before it will connect. Firstly, the EC2 instances 
 ## Instance Profile/Role
 This one is fairly easy thanks to an AWS managed policy, AmazonSSMManagedInstanceCore. Either create an Instance Profile or a Role and attach that to your EC. 
 
-## Endpoints - Demo starts here!
+## Endpoints - The demo starts here!
 There are three endpoints needed for full SSM access: SSM, SSMMessages, and EC2Messages. In this example, I am using a single AZ for all endpoints, along with a single Security Group. We don't need any HA for this demo.
 
 **NOTE: Some aspects don't work as well in Melb right now (March 2023). While you can do most things, you may want to run this demo from Syd.**
@@ -23,12 +23,12 @@ The included EC2-Instances.yaml creates:
 - A basic Linux instance
 - A basic Windows instance
 
-![alt text](../Images/Basic-02-EC2-Status.png "EC Status screen showing both EC2 instances and security tab for Linux instance")
+![alt text](../Images/Basic-02-EC2-Status.png "EC Status screen showing both EC2 instances and the security tab for Linux instance")
 
 ## Console connectivity
 Once all the above has been met and your servers are running, you can now use SSM to connect. You can even RDP to Windows servers.
 
-To do so, either right click on the instance name and select Connect or hit the Connect button.
+To do so, either right-click on the instance name and select Connect or hit the Connect button.
 
 For Melbourne region:
 ![alt text](../Images/Basic-03-EC2-Lin-Connect.png "Connect window for the Linux server")
@@ -51,7 +51,7 @@ For Syudney region:
 These can also be accessed from the **Systems Manager** console. **Session Manager** can be used, but we'll be checking out **Fleet Manager**.
 
 ## Fleet Manager
-Fleet Manager gives a lot of tools to manage individual instances from a central console. You can play with the tools at your leisure, but for this demo we will focus on the Connect options.
+Fleet Manager gives a lot of tools to manage individual instances from a central console. You can play with the tools at your leisure, but for this demo, we will focus on the Connect options.
 
 **NOTE: Not all the tools are available in Melbourne at this time (March 2023)**
 
@@ -64,7 +64,7 @@ If you select the **Connect with Remote Desktop** option, you are given three ch
 - Key Pair
 - Single Sign-On
 
-![alt text](../Images/Basic-08-FleetMgr-RDP-Login.png "Fleet Manager sign in options screen")
+![alt text]Fleet Manager sign-in options screen")
 
 You are then given an RDP session in a small window. By clicking the icon in the top right, you can open to full screen.
 

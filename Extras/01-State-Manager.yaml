@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create State Manager Associations to Stop & Start EC2
+# This creates SSM State Manager Associations to Stop & Start EC2 
+# instances based on tags.
+# NOTE: Cron for SSM has some peculiarities. Refer to:
+#  https://docs.aws.amazon.com/systems-manager/latest/userguide/reference-cron-and-rate-expressions.html
+
+Resources:
+  AutomationExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ssm.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2FullAccess
+
+# Stop tagged EC2 on Friday night at 08:00 UTC FRI
+  StopEC2Fri:
+    Type: AWS::SSM::Association
+    Properties:
+      ApplyOnlyAtCronInterval: true
+      AutomationTargetParameterName: InstanceId
+      AssociationName: EC2Stop-Fri
+      Name: AWS-StopEC2Instance
+      Parameters:
+        AutomationAssumeRole:
+          - !GetAtt AutomationExecutionRole.Arn
+      ScheduleExpression: cron(0 8 ? * TUE *)    
+      Targets:
+      - Key: tag:StopStart
+        Values:
+          - "true"
+
+# Start tagged EC2 on Monday morning at 21:00 UTC SUN
+  StartEC2Mon:
+    Type: AWS::SSM::Association
+    Properties:
+      ApplyOnlyAtCronInterval: true
+      AutomationTargetParameterName: InstanceId
+      AssociationName: EC2Start-Mon
+      Name: AWS-StartEC2Instance
+      Parameters:
+        AutomationAssumeRole:
+          - !GetAtt AutomationExecutionRole.Arn
+      ScheduleExpression: cron(0 21 ? * MON *)    
+      Targets:
+      - Key: tag:StopStart
+        Values:
+          - "true"          
