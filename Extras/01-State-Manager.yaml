@@ -21,6 +21,7 @@ Resources:
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2FullAccess
 
+#This will shutdown tagged instances over the weekend
 # Stop tagged EC2 on Friday night at 08:00 UTC FRI
   StopEC2Fri:
     Type: AWS::SSM::Association
@@ -32,7 +33,7 @@ Resources:
       Parameters:
         AutomationAssumeRole:
           - !GetAtt AutomationExecutionRole.Arn
-      ScheduleExpression: cron(0 8 ? * TUE *)    
+      ScheduleExpression: cron(0 8 ? * FRI *)    
       Targets:
       - Key: tag:StopStart
         Values:
@@ -49,7 +50,7 @@ Resources:
       Parameters:
         AutomationAssumeRole:
           - !GetAtt AutomationExecutionRole.Arn
-      ScheduleExpression: cron(0 21 ? * MON *)    
+      ScheduleExpression: cron(0 21 ? * SUN *)    
       Targets:
       - Key: tag:StopStart
         Values:
